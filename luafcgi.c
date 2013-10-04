@@ -110,6 +110,31 @@ fcgi_get_param(lua_State *L)
 	return 1;
 }
 
+
+static int
+fcgi_get_env(lua_State *L)
+{
+	char **p = env;
+  char *v = NULL;
+
+  if (p == NULL) {
+		lua_pushnil(L);
+    return 1;
+  }
+
+  lua_newtable(L);
+  while (*p) {
+    v = strchr(*p, '=');
+    if (v) {
+      lua_pushlstring(L, *p, v-*p);
+      lua_pushstring(L, ++v);
+      lua_settable(L, -3);
+    }
+    p++;
+  }
+  return 1;
+}
+
 static int
 fcgi_open_socket(lua_State *L)
 {
@@ -154,6 +179,7 @@ luaopen_fcgi(lua_State* L)
 		{ "getLine",	fcgi_get_line },
 		{ "getStr",	fcgi_get_str },
 		{ "getParam",	fcgi_get_param },
+		{ "getEnv",	fcgi_get_env},
 		{ "openSocket",	fcgi_open_socket },
 		{ "putStr",	fcgi_put_str },
 		{ NULL,		NULL }
